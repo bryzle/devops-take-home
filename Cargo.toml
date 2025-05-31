@@ -8,4 +8,4 @@ actix-web = "4.11.0"
 
 [[bin]]
 name = "devops-takehome"
-path = "main.rs"
+path = "src/main.rs"

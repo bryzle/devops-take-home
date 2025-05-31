@@ -46,3 +46,24 @@ curl http://localhost:8080
 ```
 
 You should see the message: "Hello, DevOps candidate!"
+# DevOps Take-Home Assessment
+
+This project contains a containerized Rust backend server with an automated CI/CD pipeline, designed to demonstrate best practices in containerization, deployment, and automation.
+
+---
+
+## 🚀 Tech Stack
+
+- **Rust** (compiled binary)
+- **Docker** (multi-stage build for lean image)
+- **GitHub Actions** (CI/CD pipeline)
+- **AWS ECS / ECR** (deployment platform)
+
+---
+
+## 🐳 Docker Instructions
+
+### Build the container:
+
+```bash
+docker build -t devops-takehome .

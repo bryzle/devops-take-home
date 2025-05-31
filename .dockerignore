@@ -1,0 +1,31 @@
+# Rust build artifacts
+target/
+**/target/
+
+# Git and VCS
+.git/
+.gitignore
+
+# GitHub workflows (not needed in container)
+.github/
+
+# Dependency lock files (used at build time, not runtime)
+Cargo.lock
+
+# Editor/IDE
+.vscode/
+*.sw?
+*~
+
+# OS/Temp
+.DS_Store
+Thumbs.db
+
+# Logs and output
+*.log
+*.out
+
+# Anything not needed in final app build
+README.md
+.dockerignore
+Dockerfile
