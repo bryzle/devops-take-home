@@ -12,3 +12,4 @@ services:
       - .:/app
     environment:
       RUST_LOG: debug
+    command: ["./devops-takehome"]
