@@ -16,7 +16,7 @@ resource "aws_instance" "devops_server" {
       "sudo yum install -y docker",
       "sudo service docker start",
       "sudo usermod -a -G docker ec2-user",
-      "docker run -d -p 8080:8080 \${var.docker_image}"
+      "docker run -d -p 8080:8080 ${var.docker_image}"
     ]
   }
 }
