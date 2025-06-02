@@ -10,23 +10,15 @@ resource "aws_instance" "devops_server" {
   tags = {
     Name = "DevOpsServer"
   }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo yum update -y",
-      "sudo yum install -y docker",
-      "sudo service docker start",
-      "sudo usermod -a -G docker ec2-user",
-      "docker run -d -p 8080:8080 ${var.docker_image}"
-    ]
-  }
-
-    connection {
-    type        = "ssh"
-    user        = "ec2-user"
-    private_key = file("~/.ssh/id_rsa")
-    host        = self.public_ip
-  }
+   user_data = <<-EOF
+    #!/bin/bash
+    yum update -y
+    yum install -y docker
+    service docker start
+    usermod -a -G docker ec2-user
+    docker run -d -p 8080:8080 ${docker_image}
+  EOF
+  
 }
 
 variable "docker_image" {
