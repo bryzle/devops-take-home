@@ -1,69 +1,55 @@
-# Rust Web Server
-
-A simple web server built with Rust and Actix-web.
-
-## Prerequisites
-
-Before running this project, you need to have Rust installed on your system.
-
-### Installing Rust
-
-1. Visit [rustup.rs](https://rustup.rs/) or run the following command in your terminal:
-
-   ```bash
-   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-   ```
-
-2. Follow the installation prompts
-3. After installation, restart your terminal or run:
-   ```bash
-   source "$HOME/.cargo/env"
-   ```
-
-Alternatively, you can install rust using Homebrew:
-
-```bash
-brew install rust
-```
-
-## Running the Server
-
-1. Clone this repository
-2. Navigate to the project directory
-3. Run the server using Cargo:
-   ```bash
-   cargo run
-   ```
-
-The server will start and be available at `http://localhost:8080`
-
-## Testing
-
-You can test the server by visiting `http://localhost:8080` in your web browser or using curl:
-
-```bash
-curl http://localhost:8080
-```
-
-You should see the message: "Hello, DevOps candidate!"
 # DevOps Take-Home Assessment
 
-This project contains a containerized Rust backend server with an automated CI/CD pipeline, designed to demonstrate best practices in containerization, deployment, and automation.
+## Overview
 
----
+This project demonstrates a complete deployment pipeline for a Rust backend server, showcasing containerization, CI/CD pipeline creation, infrastructure scalability, testing, and code review practices.
 
-## 🚀 Tech Stack
+## Containerization
 
-- **Rust** (compiled binary)
-- **Docker** (multi-stage build for lean image)
-- **GitHub Actions** (CI/CD pipeline)
-- **AWS ECS / ECR** (deployment platform)
+The Rust backend is containerized using a multi-stage Dockerfile to optimize for size and efficiency. The final image is based on a minimal Debian image.
 
----
+## CI/CD Pipeline
 
-## 🐳 Docker Instructions
+The CI/CD pipeline is configured using GitHub Actions. It includes the following steps:
+- Build and test the Rust application.
+- Build and publish the Docker container to Docker Hub.
+- Deploy the Docker container to a Kubernetes cluster.
 
-### Build the container:
+## Scalability Strategy
 
-```bash
-docker build -t devops-takehome .
+The deployment is configured to run on a Kubernetes cluster with 3 replicas for load balancing and redundancy. The setup can be scaled by adjusting the number of replicas in the Kubernetes deployment configuration.
+
+## Testing Approach
+
+Automated tests are included in the pipeline using `cargo test`. These tests ensure the correctness of the application before deployment.
+
+## Code Review Practices
+
+Recommended code review process:
+- Structure reviews to focus on security, readability, and efficiency.
+- Prioritize critical areas such as authentication, data handling, and error management.
+- Use automated code review tools like `clippy` for Rust to catch common issues.
+
+## Running the Pipeline
+
+1. **Set up Docker Hub Credentials:**
+   - Go to your GitHub repository settings, navigate to "Secrets and variables" > "Actions", and add the following secrets:
+     - `DOCKER_HUB_USERNAME`: Your Docker Hub username.
+     - `DOCKER_HUB_ACCESS_TOKEN`: A Docker Hub access token.
+
+2. **Kubernetes Setup:**
+   - Install `kubectl`, the Kubernetes command-line tool, to interact with your cluster.
+   - Set up a Kubernetes cluster using Minikube or a cloud provider like GKE, EKS, or AKS.
+
+3. **Deploying to Kubernetes:**
+   - Once your Kubernetes cluster is set up and `kubectl` is configured to connect to it, deploy the application using:
+     ```bash
+     kubectl apply -f k8s/deployment.yaml
+     ```
+
+4. **Trigger the Pipeline:**
+   - Push changes to the `main` branch to trigger the CI/CD pipeline.
+
+## Infrastructure Configuration
+
+The Kubernetes deployment configuration is located in `k8s/deployment.yaml`. It defines the deployment strategy and container specifications.
