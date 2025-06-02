@@ -13,11 +13,11 @@ The Rust backend is containerized using a multi-stage Dockerfile to optimize for
 The CI/CD pipeline is configured using GitHub Actions. It includes the following steps:
 - Build and test the Rust application.
 - Build and publish the Docker container to Docker Hub.
-- Deploy the Docker container to a Kubernetes cluster.
+- Deploy the Docker container using Terraform.
 
 ## Scalability Strategy
 
-The deployment is configured to run on a Kubernetes cluster with 3 replicas for load balancing and redundancy. The setup can be scaled by adjusting the number of replicas in the Kubernetes deployment configuration.
+The deployment is configured to run on an AWS EC2 instance. The setup can be scaled by adjusting the instance type or adding more instances through Terraform configuration.
 
 ## Testing Approach
 
@@ -37,19 +37,18 @@ Recommended code review process:
      - `DOCKER_HUB_USERNAME`: Your Docker Hub username.
      - `DOCKER_HUB_ACCESS_TOKEN`: A Docker Hub access token.
 
-2. **Kubernetes Setup:**
-   - Install `kubectl`, the Kubernetes command-line tool, to interact with your cluster.
-   - Set up a Kubernetes cluster using Minikube or a cloud provider like GKE, EKS, or AKS.
+2. **Terraform Setup:**
+   - Ensure you have an AWS account and set up AWS credentials as GitHub secrets:
+     - `AWS_ACCESS_KEY_ID`: Your AWS access key ID.
+     - `AWS_SECRET_ACCESS_KEY`: Your AWS secret access key.
+     - `TF_API_TOKEN`: Terraform API token for authentication.
 
-3. **Deploying to Kubernetes:**
-   - Once your Kubernetes cluster is set up and `kubectl` is configured to connect to it, deploy the application using:
-     ```bash
-     kubectl apply -f k8s/deployment.yaml
-     ```
+3. **Deploying with Terraform:**
+   - The Terraform configuration is located in `terraform/main.tf`. It provisions an EC2 instance and runs the Docker container.
 
 4. **Trigger the Pipeline:**
    - Push changes to the `main` branch to trigger the CI/CD pipeline.
 
 ## Infrastructure Configuration
 
-The Kubernetes deployment configuration is located in `k8s/deployment.yaml`. It defines the deployment strategy and container specifications.
+The Terraform configuration is located in `terraform/main.tf`. It defines the infrastructure setup and deployment strategy.
