@@ -16,7 +16,7 @@ resource "aws_instance" "devops_server" {
     yum install -y docker
     service docker start
     usermod -a -G docker ec2-user
-    docker run -d -p 8080:8080 ${docker_image}
+    docker run -d -p 8080:8080 ${var.docker_image}
   EOF
   
 }
