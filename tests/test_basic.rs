@@ -3,7 +3,7 @@ use actix_web::{test, App};
 #[actix_web::test]
 async fn test_index_ok() {
     // Import your app and handler
-    use devops_takehome::{index}; // Update with your crate name and handler path
+use devops_takehome::index;
 
     // Build the app for testing
     let app = test::init_service(App::new().service(index)).await;
