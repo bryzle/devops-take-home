@@ -3,6 +3,10 @@ name = "devops-takehome"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "devops_takehome"
+path = "src/lib.rs"
+
 [dependencies]
 actix-web = "4.11.0"
 

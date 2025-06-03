@@ -1,9 +1,5 @@
-use actix_web::{get, App, HttpResponse, HttpServer, Responder};
-
-#[get("/")]
-async fn index() -> impl Responder {
-    HttpResponse::Ok().body("Hello, DevOps candidate!")
-}
+use actix_web::{App, HttpServer};
+use devops_takehome::index;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
