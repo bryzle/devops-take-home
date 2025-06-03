@@ -19,7 +19,7 @@ jobs:
           override: true
 
       - name: Run Unit Tests
-        run: cargo test --lib
+        run: cargo test 
 
       - name: Run Integration Tests
         run: cargo test --test integration

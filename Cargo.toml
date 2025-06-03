@@ -9,7 +9,3 @@ actix-web = "4.11.0"
 [[bin]]
 name = "devops-takehome"
 path = "src/main.rs"
-
-[lib]
-name = "devops_takehome"
-path = "src/lib.rs"
