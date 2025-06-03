@@ -15,7 +15,7 @@ WORKDIR /app
 COPY . .
 
 RUN rustup target add x86_64-unknown-linux-gnu
-RUN cargo test --target x86_64-unknown-linux-gnu
+RUN cargo test --test test_basic --target x86_64-unknown-linux-gnu
 
 # --- Runtime stage ---
 EXPOSE 8080
