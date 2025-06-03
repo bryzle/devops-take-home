@@ -36,4 +36,86 @@ data "aws_vpc" "default" {
   default = true
 }
 
-data "aws_subnets" "defaul_
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+# Launch template for EC2 instances
+resource "aws_launch_template" "devops" {
+  name_prefix   = "devops-launch-template-"
+  image_id      = "ami-05c13eab67c5d8861" # Amazon Linux 2
+  instance_type = "t2.micro"
+  key_name      = "test"
+  vpc_security_group_ids = [aws_security_group.devops_sg.id]
+
+  user_data = base64encode(<<-EOF
+    #!/bin/bash
+    yum update -y
+    yum install -y docker
+    service docker start
+    usermod -a -G docker ec2-user
+    docker run -d -p 8080:8080 ${var.docker_image}
+  EOF
+  )
+}
+
+# Application Load Balancer (HTTP only)
+resource "aws_lb" "devops_alb" {
+  name               = "devops-alb"
+  load_balancer_type = "application"
+  subnets            = data.aws_subnets.default.ids
+  security_groups    = [aws_security_group.devops_sg.id]
+}
+
+resource "aws_lb_target_group" "devops_tg" {
+  name     = "devops-tg"
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = data.aws_vpc.default.id
+  health_check {
+    path                = "/"
+    interval            = 30
+    healthy_threshold   = 3
+    unhealthy_threshold = 2
+    matcher             = "200-399"
+  }
+}
+
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.devops_alb.arn
+  port              = 80
+  protocol          = "HTTP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.devops_tg.arn
+  }
+}
+
+# Auto Scaling Group
+resource "aws_autoscaling_group" "devops_asg" {
+  name                      = "devops-asg"
+  max_size                  = 3
+  min_size                  = 1
+  desired_capacity          = 1
+  vpc_zone_identifier       = data.aws_subnets.default.ids
+  health_check_type         = "EC2"
+  health_check_grace_period = 300
+  target_group_arns         = [aws_lb_target_group.devops_tg.arn]
+
+  launch_template {
+    id      = aws_launch_template.devops.id
+    version = "$Latest"
+  }
+  tag {
+    key                 = "Name"
+    value               = "DevOpsServer"
+    propagate_at_launch = true
+  }
+}
+
+variable "docker_image" {
+  description = "Docker image to run"
+}
