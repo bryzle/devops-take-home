@@ -18,11 +18,9 @@ jobs:
           toolchain: stable
           override: true
 
-      - name: Run Unit Tests
+      - name: Run All Tests
         run: cargo test 
 
-      - name: Run Integration Tests
-        run: cargo test --test integration
 
   build-and-deploy:
     needs: test
