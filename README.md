@@ -131,8 +131,8 @@ For production, Terraform would live in a reusable, versioned repo managed by De
 **Set these repository secrets in GitHub:**
 - `DOCKER_HUB_USERNAME`
 - `DOCKER_HUB_ACCESS_TOKEN`
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
+- `AWS_ACCESS_KEY_ID` - **must be set to read,write, delete**
+- `AWS_SECRET_ACCESS_KEY` - **must be set to read,write, delete**
 - `TF_API_TOKEN` (optional, for Terraform Cloud)
 
 ---
