@@ -1,26 +1,39 @@
-
 provider "aws" {
   region = "us-east-1"
 }
 
-resource "aws_instance" "devops_server" {
-  ami           = "ami-05c13eab67c5d8861" # Amazon Linux 2 AMI
-  instance_type = "t2.micro"
-  key_name      = "test"
-  tags = {
-    Name = "DevOpsServer"
+# Security group for EC2 and ALB
+resource "aws_security_group" "devops_sg" {
+  name        = "devops-sg"
+  description = "Allow HTTP inbound traffic"
+  vpc_id      = data.aws_vpc.default.id
+
+  # HTTP access for load balancer
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
-   user_data = <<-EOF
-    #!/bin/bash
-    yum update -y
-    yum install -y docker
-    service docker start
-    usermod -a -G docker ec2-user
-    docker run -d -p 8080:8080 ${var.docker_image}
-  EOF
-  
+  # SSH for management (optional)
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["YOUR_PUBLIC_IP/32"]
+  }
+  # Egress (outbound)
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
-variable "docker_image" {
-  description = "Docker image to run"
+# Get default VPC and subnet for simplicity
+data "aws_vpc" "default" {
+  default = true
 }
+
+data "aws_subnets" "defaul_
