@@ -8,15 +8,15 @@ COPY . .
 RUN rustup target add x86_64-unknown-linux-gnu
 RUN cargo build --release --target x86_64-unknown-linux-gnu
 
-# --- Runtime stage ---
-FROM debian:bookworm-slim
-
-RUN apt-get update && apt-get install -y ca-certificates curl && rm -rf /var/lib/apt/lists/*
+# --- Test stage ---
+FROM rustlang/rust:nightly AS tester
 
 WORKDIR /app
+COPY . .
 
-# Copy the Linux binary
-COPY --from=builder /app/target/x86_64-unknown-linux-gnu/release/devops-takehome .
+RUN rustup target add x86_64-unknown-linux-gnu
+RUN cargo test --target x86_64-unknown-linux-gnu
 
+# --- Runtime stage ---
 EXPOSE 8080
 CMD ["./devops-takehome"]
