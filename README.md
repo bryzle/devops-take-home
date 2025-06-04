@@ -170,8 +170,8 @@ When reviewing a PR, focus on:
 
 ---
 
-### 3. Automated Code Review Tools
-Automate as many checks as possible so that reviewers focus on higher-level concerns:
+### 3. Recommended Automated Code Review Tools
+I reccomend the below automated so that reviewers focus on higher-level concerns:
 
 1. **Pre-commit Hooks**  
    - Use [pre-commit](https://pre-commit.com/) with these hooks:  
