@@ -4,7 +4,7 @@ provider "aws" {
 
 # Security group for EC2 and ALB
 resource "aws_security_group" "devops_sg" {
-  name        = "devops-sg"
+  name        = "devops-sg1"
   description = "Allow HTTP inbound traffic"
   vpc_id      = data.aws_vpc.default.id
 
@@ -71,7 +71,7 @@ resource "aws_lb" "devops_alb" {
 }
 
 resource "aws_lb_target_group" "devops_tg" {
-  name     = "devops-tg"
+  name     = "devops-tg1"
   port     = 8080
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.default.id
