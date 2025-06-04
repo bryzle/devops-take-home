@@ -56,23 +56,23 @@ A containerized Rust web service with automated CI/CD using Docker, GitHub Actio
 
 ## Testing Approach
 
-**Unit Tests**
+1. **Unit Tests**
 
--Core business logic resides in src/lib.rs (or equivalent modules).
+  - Core business logic resides in src/lib.rs (or equivalent modules).
 
--Execute locally with:
+  - Execute locally with:
 
 ```sh
 cargo test
 ```
 
-**Integration Tests**
+2. **Integration Tests**
 
--Located in the tests/ directory (e.g., tests/test_basic.rs).
+  - Located in the tests/ directory (e.g., tests/test_basic.rs).
 
--These spin up a test server (using actix_web::test), send HTTP requests, and validate end-to-end behavior.
+  - These spin up a test server (using actix_web::test), send HTTP requests, and validate end-to-end behavior.
 
--Example snippet from tests/test_basic.rs:
+  - Example snippet from tests/test_basic.rs:
 
 ```rust
 use actix_web::{test, App};
@@ -92,9 +92,9 @@ async fn test_index_ok() {
     assert_eq!(body, "Hello, DevOps candidate!");
 }
 ```
-**Automated CI**
+3. **Automated CI**
 
--GitHub Actions runs all tests on every push or pull request to main, ensuring no regressions are merged.
+  - GitHub Actions runs all tests on every push or pull request to main, ensuring no regressions are merged.
 
 ---
 
@@ -271,7 +271,9 @@ For production, Terraform would live in a reusable, versioned repo managed by De
       }
     } ```
     - When CPU (or custom CloudWatch) alarms fire, the ASG can scale out by increasing `desired_capacity` up to `max_size`.
+
   - **Vertical scaling** by updating the `instance_type` in the `aws_launch_template` (e.g., moving from `t2.micro` to `t3.medium`).
+
   - **Load balancing** using an Application Load Balancer (ALB):
       ```
     resource "aws_lb" "app_alb" {
@@ -281,30 +283,30 @@ For production, Terraform would live in a reusable, versioned repo managed by De
     security_groups    = [aws_security_group.devops_sg.id]
   }
 
-  resource "aws_lb_target_group" "app_tg" {
-    name     = "devops-tg"
-    port     = 8080
-    protocol = "HTTP"
-    vpc_id   = data.aws_vpc.default.id
+    resource "aws_lb_target_group" "app_tg" {
+      name     = "devops-tg"
+      port     = 8080
+      protocol = "HTTP"
+      vpc_id   = data.aws_vpc.default.id
 
-    health_check {
-      path                = "/"
-      interval            = 30
-      healthy_threshold   = 3
-      unhealthy_threshold = 2
-      matcher             = "200-399"
+      health_check {
+        path                = "/"
+        interval            = 30
+        healthy_threshold   = 3
+        unhealthy_threshold = 2
+        matcher             = "200-399"
+      }
     }
-  }
 
-  resource "aws_lb_listener" "http" {
-    load_balancer_arn = aws_lb.app_alb.arn
-    port              = 80
-    protocol          = "HTTP"
-    default_action {
-      type             = "forward"
-      target_group_arn = aws_lb_target_group.app_tg.arn
-    }
-  }```
+    resource "aws_lb_listener" "http" {
+      load_balancer_arn = aws_lb.app_alb.arn
+      port              = 80
+      protocol          = "HTTP"
+      default_action {
+        type             = "forward"
+        target_group_arn = aws_lb_target_group.app_tg.arn
+      }
+    }```
 
 - **Health checks and monitoring**:
   - The ALB’s health check polls `/` every 30 seconds; unhealthy instances (HTTP status ≠ 2xx/3xx) are replaced automatically by the ASG.
@@ -321,8 +323,7 @@ For production, Terraform would live in a reusable, versioned repo managed by De
       threshold           = 75
       alarm_actions       = [aws_sns_topic.alerts.arn]
       dimensions = { InstanceId = aws_instance.app.id }
-    }
-    ```
+    } ```
     - When CPU > 75% for 2 consecutive minutes, it can trigger an SNS notification or a Lambda that increases ASG capacity.
 
 - **CI/CD driven scaling**:
