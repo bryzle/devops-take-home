@@ -101,17 +101,17 @@ async fn test_index_ok() {
 ## Code Review Practices
 
 ### 1. Git Workflow (Branching & PR Structure)
-1. **Branch Naming**  
-   - Use slash-based, descriptive names, optionally prefixed by an issue/ticket:  
-     ```  
-     feature/ABC-123-add-structured-logging  
-     bugfix/XYZ-456-fix-docker-compose-permissions  
-     chore/update-dependencies  
+1. **Branch Naming**
+   - Use slash-based, descriptive names, optionally prefixed by an issue/ticket:
+     ```
+     feature/ABC-123-add-structured-logging
+     bugfix/XYZ-456-fix-docker-compose-permissions
+     chore/update-dependencies
      ```
    - Keep branch topology aligned with GitFlow or trunk-based patterns (your choice), but always isolate feature work to its own branch.
 
-2. **Commit Messages**  
-   - Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):  
+2. **Commit Messages**
+   - Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
      ```
      feat: add structured logging to main service
      fix: handle API error when upstream is unavailable
@@ -120,61 +120,63 @@ async fn test_index_ok() {
      ```
    - Use present tense, concise summaries, and reference issue IDs if applicable.
 
-3. **PR Template & Checklist**  
-   - Include a one-paragraph description of “what changed” and “why.”  
-   - Reference related issues or RFCs.  
-   - Provide clear steps to reproduce or verify.  
-   - Include a checklist, e.g.:  
-     - [ ] Tests cover new or modified functionality.  
-     - [ ] Code formatted (`cargo fmt` / `eslint`).  
-     - [ ] No secrets or credentials are hardcoded.  
-     - [ ] IAM/Terraform changes reviewed for least privilege.  
+3. **PR Template & Checklist**
+   - Include a one-paragraph description of “what changed” and “why.”
+   - Reference related issues or RFCs.
+   - Provide clear steps to reproduce or verify.
+   - Include a checklist, e.g.:
+     - [ ] Tests cover new or modified functionality.
+     - [ ] Code formatted (`cargo fmt` / `eslint`).
+     - [ ] No secrets or credentials are hardcoded.
+     - [ ] IAM/Terraform changes reviewed for least privilege.
    - PRs should target `main` (or a long-lived integration branch) and be rebased/squashed to maintain a clean history.
 
-4. **Review SLAs & Approvals**  
-   - At least **two reviewers** must approve major feature PRs (one across the team and one from a tech lead).  
-   - All PRs should receive initial feedback within **48 hours**; final merge within **72 hours**.  
+4. **Review SLAs & Approvals**
+   - At least **two reviewers** must approve major feature PRs (one across the team and one from a tech lead).
+   - All PRs should receive initial feedback within **48 hours**; final merge within **72 hours**.
 
 ---
 
 ### 2. Review Priorities
 When reviewing a PR, focus on:
 
-1. **Security & Safety**  
-   - **Secrets/credentials**: Ensure no hardcoded tokens or passwords.  
-   - **Input validation & sanitization**: Avoid injection vulnerabilities (SQL, shell, path traversal).  
-   - **Least privilege**: Check IAM roles, security group rules, and Terraform policies.  
+1. **Security & Safety**
+   - **Secrets/credentials**: Ensure no hardcoded tokens or passwords.
+   - **Input validation & sanitization**: Avoid injection vulnerabilities (SQL, shell, path traversal).
+   - **Least privilege**: Check IAM roles, security group rules, and Terraform policies.
+   ** The PipeLine should be configured to fail if any of these checks are not met.**
    - **Dependency vulnerabilities**: Confirm that `cargo audit` or `trivy` checks have passed.
 
-2. **Readability & Maintainability**  
-   - **Naming**: Variables, functions, and modules should have clear, intention-revealing names.  
-   - **Formatting**: Must pass `cargo fmt -- --check`.  
-   - **Documentation**: Public functions and critical modules should have Rust doc comments (`///`).  
+2. **Readability & Maintainability**
+   - **Naming**: Variables, functions, and modules should have clear, intention-revealing names.
+   - **Formatting**: Must pass `cargo fmt -- --check`.
+   - **Documentation**: Public functions and critical modules should have Rust doc comments (`///`).
    - **Module structure**: Each module should follow single-responsibility; business logic should be in `lib.rs`, not buried in `main.rs`.
 
-3. **Efficiency & Performance**  
-   - **Hot paths**: Examine asynchronous vs. blocking calls (e.g., use `actix_web::web::block` if necessary).  
-   - **Memory allocations**: Avoid unnecessary clones or large buffers; use zero-copy where possible.  
+3. **Efficiency & Performance**
+** This is a lot to check for in a PR, so focus on the most critical paths first.**
+   - **Hot paths**: Examine asynchronous vs. blocking calls (e.g., use `actix_web::web::block` if necessary).
+   - **Memory allocations**: Avoid unnecessary clones or large buffers; use zero-copy where possible.
    - **Algorithmic complexity**: Refuse O(n²) in loops if data can grow; suggest using iterators or more efficient data structures.
 
-4. **Correctness & Robustness**  
-   - **Error handling**: No unwrapped `Result`/`Option` in production code—propagate or map errors gracefully.  
-   - **Edge cases**: Validate all inputs (out-of-range, empty, null).  
+4. **Correctness & Robustness**
+   - **Error handling**: No unwrapped `Result`/`Option` in production code—propagate or map errors gracefully.
+   - **Edge cases**: Validate all inputs (out-of-range, empty, null).
    - **Graceful shutdown**: Ensure the Actix-Web server handles `SIGINT`/`SIGTERM` without dropping connections mid-request.
 
-5. **Testing & Coverage**  
-   - **Unit tests**: Cover core business functions (especially any parsing, transformations, or critical computations).  
-   - **Integration tests**: Validate HTTP handlers end-to-end (using `actix_web::test`); ensure that any external resource calls are mocked.  
-   - **Fuzz / Property tests** (optional): For parsing or serialization code, consider `proptest` or `quickcheck`.  
+5. **Testing & Coverage**
+   - **Unit tests**: Cover core business functions (especially any parsing, transformations, or critical computations).
+   - **Integration tests**: Validate HTTP handlers end-to-end (using `actix_web::test`); ensure that any external resource calls are mocked.
+   - **Fuzz / Property tests** (optional): For parsing or serialization code, consider `proptest` or `quickcheck`.
    - **Test automation**: Ensure `cargo test --all --locked` passes in CI, and `cargo clippy -- -D warnings` yields zero errors.
 
 ---
 
-### 3. Recommended Automated Code Review Tools
-I reccomend the below automated so that reviewers focus on higher-level concerns:
+### 3. Automated Code Review Tools
+Automate as many checks as possible so that reviewers focus on higher-level concerns:
 
-1. **Pre-commit Hooks**  
-   - Use [pre-commit](https://pre-commit.com/) with these hooks:  
+1. **Pre-commit Hooks**
+   - Use [pre-commit](https://pre-commit.com/) with these hooks:
      ```yaml
      repos:
        - repo: https://github.com/rust-lang/rustfmt
@@ -196,21 +198,21 @@ I reccomend the below automated so that reviewers focus on higher-level concerns
      ```
    - This enforces formatting (Rust/JS) and linting before any commit is created, preventing style/drift issues.
 
-2. **GitHub Actions**  
-   - A dedicated CI workflow runs on every PR & merge to `main`, performing:  
-     1. `cargo fmt -- --check`  
-     2. `cargo clippy -- -D warnings`  
-     3. `cargo test --all --locked`  
-     4. `cargo audit` (dependency vulnerability scan)  
-     5. `docker build --target tester` (verify that the Dockerfile’s “test” stage exits 0)  
+2. **GitHub Actions**
+   - A dedicated CI workflow runs on every PR & merge to `main`, performing:
+     1. `cargo fmt -- --check`
+     2. `cargo clippy -- -D warnings`
+     3. `cargo test --all --locked`
+     4. `cargo audit` (dependency vulnerability scan)
+     5. `docker build --target tester` (verify that the Dockerfile’s “test” stage exits 0)
    - Failure at any step blocks merging.
 
-3. **Dependabot (or Renovate)**  
-   - A `.github/dependabot.yml` config ensures that any out-of-date Rust crates (or Docker base images) automatically generate PRs.  
+3. **Dependabot (or Renovate)**
+   - A `.github/dependabot.yml` config ensures that any out-of-date Rust crates (or Docker base images) automatically generate PRs.
    - Each dependency bump triggers the same CI workflow (`tests`, `clippy`, `audit`) so we know immediately if a crate upgrade breaks anything.
 
-4. **Container Scanning (Trivy)**  
-   - Add a GitHub Action step:  
+4. **Container Scanning (Trivy)**
+   - Add a GitHub Action step:
      ```yaml
      - name: Scan Docker image with Trivy
        uses: aquasecurity/trivy-action@v0.8.0
@@ -238,7 +240,7 @@ I reccomend the below automated so that reviewers focus on higher-level concerns
 For this assessment, the Terraform configuration is included directly in this repo for convenience.
 
 
-**Production Proposal:**  
+**Production Proposal:**
 For production, Terraform would live in a reusable, versioned repo managed by DevOps. The CI/CD pipeline would call this repo as a module, enforcing resource standards and consistency across environments.
 
 ---
@@ -269,7 +271,8 @@ For production, Terraform would live in a reusable, versioned repo managed by De
         value               = "devops-app-instance"
         propagate_at_launch = true
       }
-    } ```
+    }
+    ```
     - When CPU (or custom CloudWatch) alarms fire, the ASG can scale out by increasing `desired_capacity` up to `max_size`.
 
   - **Vertical scaling** by updating the `instance_type` in the `aws_launch_template` (e.g., moving from `t2.micro` to `t3.medium`).
@@ -281,7 +284,7 @@ For production, Terraform would live in a reusable, versioned repo managed by De
     load_balancer_type = "application"
     subnets            = data.aws_subnets.default.ids
     security_groups    = [aws_security_group.devops_sg.id]
-  }
+    }
 
     resource "aws_lb_target_group" "app_tg" {
       name     = "devops-tg"
@@ -297,7 +300,6 @@ For production, Terraform would live in a reusable, versioned repo managed by De
         matcher             = "200-399"
       }
     }
-
     resource "aws_lb_listener" "http" {
       load_balancer_arn = aws_lb.app_alb.arn
       port              = 80
@@ -306,7 +308,7 @@ For production, Terraform would live in a reusable, versioned repo managed by De
         type             = "forward"
         target_group_arn = aws_lb_target_group.app_tg.arn
       }
-    }```
+    }
 
 - **Health checks and monitoring**:
   - The ALB’s health check polls `/` every 30 seconds; unhealthy instances (HTTP status ≠ 2xx/3xx) are replaced automatically by the ASG.
@@ -323,7 +325,8 @@ For production, Terraform would live in a reusable, versioned repo managed by De
       threshold           = 75
       alarm_actions       = [aws_sns_topic.alerts.arn]
       dimensions = { InstanceId = aws_instance.app.id }
-    } ```
+    }
+    ```
     - When CPU > 75% for 2 consecutive minutes, it can trigger an SNS notification or a Lambda that increases ASG capacity.
 
 - **CI/CD driven scaling**:
@@ -337,9 +340,9 @@ For production, Terraform would live in a reusable, versioned repo managed by De
   - Application and infra code are separated (e.g., `/terraform/modules/asg` and `/terraform/modules/alb`), so you can independently update scaling policies or add new components (e.g., a caching layer or a secondary region).
 
 With this setup, you have:
-1. **Horizontal scaling**: Auto Scaling Group with ALB health checks automatically adjusts the instance fleet under load.  
-2. **Vertical scaling**: Change instance_type in the launch template and reapply Terraform to upgrade instance specifications.  
-3. **Load Balancing & Fault Tolerance**: ALB distributes traffic only to healthy instances, and the ASG automatically rejoins or replaces failing nodes.  
+1. **Horizontal scaling**: Auto Scaling Group with ALB health checks automatically adjusts the instance fleet under load.
+2. **Vertical scaling**: Change instance_type in the launch template and reapply Terraform to upgrade instance specifications.
+3. **Load Balancing & Fault Tolerance**: ALB distributes traffic only to healthy instances, and the ASG automatically rejoins or replaces failing nodes.
 4. **Automated changes**: All scaling rules live in Terraform, so any change to scaling thresholds or instance sizes goes through your GitHub Actions pipeline for review and consistency.
 5. **Monitoring & Alerts**: ALB health checks and CloudWatch Alarms ensure rapid detection and remediation of infrastructure issues.
 6. **CI/CD Integration**: All changes to scaling rules or instance specs flow through a code-reviewed CI pipeline, guaranteeing consistency and auditability.
@@ -377,6 +380,29 @@ With this setup, you have:
 - `AWS_ACCESS_KEY_ID` - **Required GitHub repository secrets:read,write, delete**
 - `AWS_SECRET_ACCESS_KEY` - **Required GitHub repository secrets:read,write, delete**
 - `TF_API_TOKEN` (optional, for Terraform Cloud)
+
+---
+
+---
+
+## Last-Minute Reflections
+
+- During the course of this take-home, I discovered AWS Fargate as a serverless compute option for running containers. In a longer timeframe, I would have refactored the Terraform code to deploy the Docker image to an ECS Fargate cluster instead of EC2 instances. Fargate eliminates the need to manage EC2 host capacity and would further simplify horizontal scaling and patching.
+
+- I also learned more about modular, reusable Terraform repositories (aka “Terraform modules”). If there were additional time, I would have extracted the ASG/ALB/security-group logic into standalone, versioned modules stored in a separate GitHub repo. This pattern would allow any downstream team to import the same “app-autoscaling” and “app-load-balancer” modules with a single `source` URL, ensuring consistent network/security settings and scaling policies across environments (dev, staging, prod).
+
+- In a production scenario, I would:
+  1. Break out Terraform into two repos (one for “networking+infra” modules, one for “application” composition).
+  2. Push the “networking+infra” modules to a versioned module registry (e.g., Terraform Cloud Registry, private S3 bucket).
+  3. Reference those modules in the application repo’s root module (`main.tf`), passing in variables like `docker_image`, `min_size`, `max_size`, and `instance_type`.
+  4. Consider migrating to Fargate to offload host maintenance and use capacity providers for even more granular scaling.
+
+- Overall, this exercise reinforced the value of:
+  - Building back-end code (Rust/Actix) that can be tested and containerized in a single pipeline.
+  - Defining Terraform modules early so that infrastructure changes can be peer-reviewed and versioned independently of application logic.
+  - Exploring serverless/container-orchestration options like Fargate when time permits, to reduce operational overhead.
+
+If given more time, I would have implemented both of those enhancements—migrating to AWS Fargate and splitting Terraform into reusable modules—so that future feature releases, scaling tweaks, or security updates could be made with minimal cross-team coordination and maximum consistency.  
 
 ---
 
