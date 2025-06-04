@@ -2,35 +2,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# Security group for EC2 and ALB
-resource "aws_security_group" "devops_sg" {
-  name        = "devops-sg"
-  description = "Allow HTTP inbound traffic"
-  vpc_id      = data.aws_vpc.default.id
-
-  # HTTP access for load balancer
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  # SSH for management (optional)
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  # Egress (outbound)
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
 # Get default VPC and subnet for simplicity
 data "aws_vpc" "default" {
   default = true
@@ -43,13 +14,41 @@ data "aws_subnets" "default" {
   }
 }
 
+# Security group for EC2 and ALB
+resource "aws_security_group" "devops_sg_v2" {
+  name        = "devops-sg-v2"
+  description = "Allow HTTP inbound traffic"
+  vpc_id      = data.aws_vpc.default.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 # Launch template for EC2 instances
-resource "aws_launch_template" "devops" {
-  name_prefix   = "devops-launch-template-"
-  image_id      = "ami-05c13eab67c5d8861" # Amazon Linux 2
+resource "aws_launch_template" "devops_v2" {
+  name_prefix   = "devops-launch-template-v2-"
+  image_id      = "ami-05c13eab67c5d8861"
   instance_type = "t2.micro"
   key_name      = "test"
-  vpc_security_group_ids = [aws_security_group.devops_sg.id]
+  vpc_security_group_ids = [aws_security_group.devops_sg_v2.id]
 
   user_data = base64encode(<<-EOF
     #!/bin/bash
@@ -62,19 +61,20 @@ resource "aws_launch_template" "devops" {
   )
 }
 
-# Application Load Balancer (HTTP only)
-resource "aws_lb" "devops_alb" {
-  name               = "devops-alb"
+# Application Load Balancer
+resource "aws_lb" "devops_alb_v2" {
+  name               = "devops-alb-v2"
   load_balancer_type = "application"
   subnets            = data.aws_subnets.default.ids
-  security_groups    = [aws_security_group.devops_sg.id]
+  security_groups    = [aws_security_group.devops_sg_v2.id]
 }
 
-resource "aws_lb_target_group" "devops_tg" {
-  name     = "devops-tg"
+resource "aws_lb_target_group" "devops_tg_v2" {
+  name     = "devops-tg-v2"
   port     = 8080
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.default.id
+
   health_check {
     path                = "/"
     interval            = 30
@@ -84,31 +84,32 @@ resource "aws_lb_target_group" "devops_tg" {
   }
 }
 
-resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.devops_alb.arn
+resource "aws_lb_listener" "http_v2" {
+  load_balancer_arn = aws_lb.devops_alb_v2.arn
   port              = 80
   protocol          = "HTTP"
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.devops_tg.arn
+    target_group_arn = aws_lb_target_group.devops_tg_v2.arn
   }
 }
 
 # Auto Scaling Group
-resource "aws_autoscaling_group" "devops_asg" {
-  name                      = "devops-asg"
+resource "aws_autoscaling_group" "devops_asg_v2" {
+  name                      = "devops-asg-v2"
   max_size                  = 3
   min_size                  = 1
   desired_capacity          = 1
   vpc_zone_identifier       = data.aws_subnets.default.ids
   health_check_type         = "EC2"
   health_check_grace_period = 300
-  target_group_arns         = [aws_lb_target_group.devops_tg.arn]
+  target_group_arns         = [aws_lb_target_group.devops_tg_v2.arn]
 
   launch_template {
-    id      = aws_launch_template.devops.id
+    id      = aws_launch_template.devops_v2.id
     version = "$Latest"
   }
+
   tag {
     key                 = "Name"
     value               = "DevOpsServer"
