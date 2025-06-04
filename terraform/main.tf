@@ -64,7 +64,7 @@ resource "aws_launch_template" "devops" {
 
 # Application Load Balancer (HTTP only)
 resource "aws_lb" "devops_alb" {
-  name               = "devops-alb"
+  name               = "devops-alb1"
   load_balancer_type = "application"
   subnets            = data.aws_subnets.default.ids
   security_groups    = [aws_security_group.devops_sg.id]
@@ -96,7 +96,7 @@ resource "aws_lb_listener" "http" {
 
 # Auto Scaling Group
 resource "aws_autoscaling_group" "devops_asg" {
-  name                      = "devops-asg"
+  name                      = "devops-asg1"
   max_size                  = 3
   min_size                  = 1
   desired_capacity          = 1
