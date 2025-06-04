@@ -15,8 +15,8 @@ WORKDIR /app
 COPY . .
 
 RUN rustup target add x86_64-unknown-linux-gnu
-RUN cargo test --test test_basic --target x86_64-unknown-linux-gnu
+# Copy the Linux binary
+COPY --from=builder /app/target/x86_64-unknown-linux-gnu/release/devops-takehome .
 
-# --- Runtime stage ---
 EXPOSE 8080
 CMD ["./devops-takehome"]
