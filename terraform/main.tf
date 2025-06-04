@@ -4,7 +4,7 @@ provider "aws" {
 
 # Security group for EC2 and ALB
 resource "aws_security_group" "devops_sg" {
-  name        = "devops-sg1"
+  name        = "devops-sg"
   description = "Allow HTTP inbound traffic"
   vpc_id      = data.aws_vpc.default.id
 
@@ -64,14 +64,14 @@ resource "aws_launch_template" "devops" {
 
 # Application Load Balancer (HTTP only)
 resource "aws_lb" "devops_alb" {
-  name               = "devops-alb1"
+  name               = "devops-alb"
   load_balancer_type = "application"
   subnets            = data.aws_subnets.default.ids
   security_groups    = [aws_security_group.devops_sg.id]
 }
 
 resource "aws_lb_target_group" "devops_tg" {
-  name     = "devops-tg1"
+  name     = "devops-tg"
   port     = 8080
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.default.id
@@ -96,7 +96,7 @@ resource "aws_lb_listener" "http" {
 
 # Auto Scaling Group
 resource "aws_autoscaling_group" "devops_asg" {
-  name                      = "devops-asg1"
+  name                      = "devops-asg"
   max_size                  = 3
   min_size                  = 1
   desired_capacity          = 1
