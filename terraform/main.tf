@@ -125,6 +125,3 @@ resource "aws_autoscaling_group" "devops_asg_v2" {
   }
 }
 
-variable "docker_image" {
-  description = "Docker image to run"
-}
