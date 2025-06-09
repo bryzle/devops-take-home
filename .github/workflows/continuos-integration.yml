@@ -66,6 +66,30 @@ jobs:
         run: terraform init
         working-directory: terraform
 
+      - name: Check and Import Existing Resources
+        working-directory: ./terraform
+        env:
+          AWS_REGION: us-east-1
+        run: |
+          set -e
+
+          echo "Checking for existing Security Group devops-sg-v2..."
+          if aws ec2 describe-security-groups --filters "Name=group-name,Values=devops-sg-v2" --region $AWS_REGION | grep -q sg-; then
+            SG_ID=$(aws ec2 describe-security-groups --filters "Name=group-name,Values=devops-sg-v2" --region $AWS_REGION --query 'SecurityGroups[0].GroupId' --output text)
+            echo "Found Security Group: $SG_ID"
+            terraform import -var="docker_image=devops-takehome:latest" aws_security_group.devops_sg_v2 $SG_ID
+          else
+            echo "Security Group not found, skipping import."
+          fi
+
+          echo "Checking for existing Target Group devops-tg-v2..."
+          if aws elbv2 describe-target-groups --names devops-tg-v2 --region $AWS_REGION > /dev/null 2>&1; then
+            TG_ARN=$(aws elbv2 describe-target-groups --names devops-tg-v2 --region $AWS_REGION --query 'TargetGroups[0].TargetGroupArn' --output text)
+            echo "Found Target Group: $TG_ARN"
+            terraform import -var="docker_image=devops-takehome:latest" aws_lb_target_group.devops_tg_v2 $TG_ARN
+          else
+            echo "Target Group not found, skipping import."
+          fi
       - name: Terraform Apply
         run: terraform apply -auto-approve -var="docker_image=${{ secrets.DOCKER_HUB_USERNAME }}/devops-takehome:${{ github.ref_name }}"
         working-directory: terraform
