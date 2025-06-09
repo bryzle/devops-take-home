@@ -71,7 +71,7 @@ jobs:
           AWS_REGION: us-east-1
         run: |
           chmod +x ./import_all.sh
-          ./import_all.sh
+          ./scripts/import_all.sh
 
       - name: Terraform Apply
         run: terraform apply -auto-approve -var="docker_image=${{ secrets.DOCKER_HUB_USERNAME }}/devops-takehome:${{ github.ref_name }}"
