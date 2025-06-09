@@ -14,6 +14,12 @@ data "aws_subnets" "default" {
   }
 }
 
+variable "docker_image" {
+  description = "Docker image to run"
+  type        = string
+  default     = "devops-takehome:latest"
+}
+
 # Security group for EC2 and ALB
 resource "aws_security_group" "devops_sg_v2" {
   name        = "devops-sg-v2"
