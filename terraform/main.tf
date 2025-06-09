@@ -69,18 +69,7 @@ resource "aws_lb" "devops_alb_v2" {
   security_groups    = [aws_security_group.devops_sg_v2.id]
 }
 
-resource "aws_cloudwatch_metric_alarm" "high_cpu" {
-      alarm_name          = "HighCPUAlarm"
-      comparison_operator = "GreaterThanThreshold"
-      evaluation_periods  = 2
-      metric_name         = "CPUUtilization"
-      namespace           = "AWS/EC2"
-      period              = 60
-      statistic           = "Average"
-      threshold           = 75
-      alarm_actions       = [aws_sns_topic.alerts.arn]
-      dimensions = { InstanceId = aws_instance.app.id }
-    }
+
 
 resource "aws_lb_target_group" "devops_tg_v2" {
   name     = "devops-tg-v2"
