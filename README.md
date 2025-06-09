@@ -37,7 +37,7 @@ A containerized Rust web service with automated CI/CD using Docker, GitHub Actio
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/<your-username>/devops-takehome.git
+   git clone https://github.com/<bryzle>/devops-takehome.git
    cd devops-takehome
    ```
 
