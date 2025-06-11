@@ -53,7 +53,7 @@ resource "aws_launch_template" "devops_v2" {
   name_prefix   = "devops-launch-template-v2-"
   image_id      = "ami-05c13eab67c5d8861"
   instance_type = "t2.micro"
-  key_name      = "test"
+  key_name      = "new-test-key"
   vpc_security_group_ids = [aws_security_group.devops_sg_v2.id]
 
   user_data = base64encode(<<-EOF
