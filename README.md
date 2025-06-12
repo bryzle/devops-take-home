@@ -10,8 +10,8 @@ A containerized Rust web service with automated CI/CD using Docker, GitHub Actio
 - Containerized with Docker
 - CI/CD pipeline with GitHub Actions
 - Infrastructure provisioned via Terraform (AWS EC2, ALB, ASG)
-- Integration and unit test coverage
-- Code quality checks via pre-commit hooks and linters
+- Integration coverage
+
 
 
 ## Table of Contents
@@ -56,17 +56,9 @@ A containerized Rust web service with automated CI/CD using Docker, GitHub Actio
 
 ## Testing Approach
 
-1. **Unit Tests**
 
-  - Core business logic resides in src/lib.rs (or equivalent modules).
 
-  - Execute locally with:
-
-```sh
-cargo test
-```
-
-2. **Integration Tests**
+1. **Integration Tests**
 
   - Located in the tests/ directory (e.g., tests/test_basic.rs).
 
